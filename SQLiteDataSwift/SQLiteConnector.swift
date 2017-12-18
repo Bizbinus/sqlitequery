@@ -1,6 +1,6 @@
 //
-//  SQLiteDataSwiftTests.swift
-//  SQLiteDataSwiftTests
+//  SQLiteConnector.swift
+//  SQLiteDataSwift
 //
 //  Created by Gail Sparks on 12/17/17.
 //  Copyright © 2017 Bizbin LLC. All rights reserved.
@@ -31,75 +31,71 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
+import Foundation
+import SQLite3
 
-import XCTest
-@testable import SQLiteDataSwift
 
-class SQLiteDataSwiftTests: XCTestCase {
-	
-	var database: SQLiteConnector!
-	
-	
-    override func setUp() {
-        super.setUp()
-			database = SQLiteConnector(databaseName: "testdata")
-			
-			
-			
-	}
-    
-    override func tearDown() {
-        super.tearDown()
-    }
+enum SQLiteConnectorError: Error
+{
+	case databaseCouldNotBeOpenedOrCreated(reason: String)
+	case databaseAlreadyOpen
 	
 	
-	func testDB_whenOpenIsOpen() {
-		
-		do {
-			
-			try database.open()
-			
-			XCTAssertTrue(database.isOpen())
-			
-			database.close()
-			
-		}
-		catch {
-			
-			
-		}
-		
-	}
-	
-	func testDB_whenOpenCantReopen() {
-		
-		
-		XCTAssertNoThrow(try database.open())
-		XCTAssertThrowsError(try database.open())
-		
-		database.close()
-		
-		
-	}
-	
-	//This function creates it's own database to test a create error
-	func testDB_whenCreatingDatabaseFailsThrowsError() {
-		
-		//create a new database here with an illegal file name
-		
-		let db = SQLiteConnector(databaseName: "")
-		
-		XCTAssertThrowsError(try db.open())
-		
-		db.close()
-		
-	}
-    
-    func testPerformanceExample() {
-			
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-    
 }
+
+class SQLiteConnector {
+	
+	private var db:OpaquePointer?
+	private var dbFileUrl:URL?
+	private var opened = false
+	
+	init(databaseName: String) {
+		
+		let docDir = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
+		
+		dbFileUrl = docDir.appendingPathComponent(databaseName)
+		
+		print("database location: "+dbFileUrl!.absoluteString)
+		
+	}
+	
+	func isOpen() -> Bool {
+		return opened
+	}
+	
+	func close() {
+		
+		if (isOpen()) {
+			sqlite3_close(db)
+			opened = false
+		}
+		
+	}
+	
+	//if database cannot be created or opened, throws an error
+	func open() throws {
+		
+		if isOpen() {
+			throw SQLiteConnectorError.databaseAlreadyOpen
+		}
+	
+		if sqlite3_open(dbFileUrl!.absoluteString, &db) != SQLITE_OK {
+			let reason = String(cString: sqlite3_errmsg(db))
+			throw SQLiteConnectorError.databaseCouldNotBeOpenedOrCreated(reason: reason)
+		}
+		
+		opened = true
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+}
+
+
+
+

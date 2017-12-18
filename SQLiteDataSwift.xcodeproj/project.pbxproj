@@ -10,6 +10,9 @@
 		7E1583DD1FE6D7F600A6A237 /* SQLiteDataSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E1583D31FE6D7F500A6A237 /* SQLiteDataSwift.framework */; };
 		7E1583E21FE6D7F600A6A237 /* SQLiteDataSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E1583E11FE6D7F600A6A237 /* SQLiteDataSwiftTests.swift */; };
 		7E1583E41FE6D7F600A6A237 /* SQLiteDataSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E1583D61FE6D7F500A6A237 /* SQLiteDataSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7E1583EE1FE6E26A00A6A237 /* SQLiteConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E1583ED1FE6E26900A6A237 /* SQLiteConnector.swift */; };
+		7E8731FB1FE7807900ECC085 /* DataTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E8731FA1FE7807900ECC085 /* DataTable.swift */; };
+		7E8731FD1FE793B600ECC085 /* DataRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E8731FC1FE793B600ECC085 /* DataRow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +32,9 @@
 		7E1583DC1FE6D7F600A6A237 /* SQLiteDataSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SQLiteDataSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E1583E11FE6D7F600A6A237 /* SQLiteDataSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteDataSwiftTests.swift; sourceTree = "<group>"; };
 		7E1583E31FE6D7F600A6A237 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7E1583ED1FE6E26900A6A237 /* SQLiteConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteConnector.swift; sourceTree = "<group>"; };
+		7E8731FA1FE7807900ECC085 /* DataTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTable.swift; sourceTree = "<group>"; };
+		7E8731FC1FE793B600ECC085 /* DataRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +79,9 @@
 			children = (
 				7E1583D61FE6D7F500A6A237 /* SQLiteDataSwift.h */,
 				7E1583D71FE6D7F500A6A237 /* Info.plist */,
+				7E1583ED1FE6E26900A6A237 /* SQLiteConnector.swift */,
+				7E8731FA1FE7807900ECC085 /* DataTable.swift */,
+				7E8731FC1FE793B600ECC085 /* DataRow.swift */,
 			);
 			path = SQLiteDataSwift;
 			sourceTree = "<group>";
@@ -148,6 +157,7 @@
 				TargetAttributes = {
 					7E1583D21FE6D7F500A6A237 = {
 						CreatedOnToolsVersion = 9.1;
+						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
 					7E1583DB1FE6D7F600A6A237 = {
@@ -196,6 +206,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E8731FD1FE793B600ECC085 /* DataRow.swift in Sources */,
+				7E8731FB1FE7807900ECC085 /* DataTable.swift in Sources */,
+				7E1583EE1FE6E26A00A6A237 /* SQLiteConnector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +347,7 @@
 		7E1583E81FE6D7F600A6A237 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -347,6 +361,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = us.bizbin.SQLiteDataSwift;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -355,6 +370,7 @@
 		7E1583E91FE6D7F600A6A237 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -376,6 +392,7 @@
 		7E1583EB1FE6D7F600A6A237 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FP99FUHNCL;
 				INFOPLIST_FILE = SQLiteDataSwiftTests/Info.plist;
@@ -390,6 +407,7 @@
 		7E1583EC1FE6D7F600A6A237 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FP99FUHNCL;
 				INFOPLIST_FILE = SQLiteDataSwiftTests/Info.plist;
