@@ -1,6 +1,6 @@
 //
-//  SQLiteDataSwiftTests.swift
-//  SQLiteDataSwiftTests
+//  DataTable.swift
+//  SQLiteDataSwift
 //
 //  Created by Gail Sparks on 12/17/17.
 //  Copyright © 2017 Bizbin LLC. All rights reserved.
@@ -30,88 +30,102 @@
 /// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
+//
 
+import Foundation
 
-import XCTest
-@testable import SQLiteDataSwift
-
-class SQLiteDataSwiftTests: XCTestCase {
+//DataTable holds data pulled from a sqlite database
+class DataTable {
 	
-	var database: SQLiteConnector!
+	//DataTable has a list of columns ( name and index )
+	//has a list of rows with data for each column ( an array of arrays )
 	
+	var columns = [String:Int]()
+	var rows:[DataRow] = [DataRow]()
 	
-    override func setUp() {
-        super.setUp()
-			database = SQLiteConnector(databaseName: "testdata")
-			
-			
-			
-	}
-    
-    override func tearDown() {
-        super.tearDown()
-    }
-	
-	
-	func testDB_whenOpenIsOpen() {
+	init() {
 		
-		do {
-			
-			try database.open()
-			
-			XCTAssertTrue(database.isOpen())
-			
-			database.close()
-			
-		}
-		catch {
-			
-			
+		
+		
+	}
+	
+	func appendColumn(_ columnName: String) throws {
+		
+		if columns[columnName] != nil {
+			throw DataTableError.columnNameAlreadyExists(columnName: columnName)
 		}
 		
-	}
-	
-	func testDB_whenOpenCantReopen() {
-		
-		
-		XCTAssertNoThrow(try database.open())
-		XCTAssertThrowsError(try database.open())
-		
-		database.close()
-		
+		columns[columnName] = columns.count
 		
 	}
 	
-	//This function creates it's own database to test a create error
-	func testDB_whenCreatingDatabaseFailsThrowsError() {
-		
-		//create a new database here with an illegal file name
-		
-		let db = SQLiteConnector(databaseName: "")
-		
-		XCTAssertThrowsError(try db.open())
-		
-		db.close()
+	func newRow() -> DataRow {
+
+		return DataRow(columns: columns.count, table: self)
 		
 	}
 	
-	func testDB_whenDatabaseClosedNotIsOpen()
-	{
+	func appendRow(_ row:DataRow) {
 		
-			try! database.open()
-		
-			database.close()
-		
-		XCTAssertTrue(!database.isOpen())
-		
-		
+		rows.append(row)
 	}
-    
-    func testPerformanceExample() {
-			
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-    
+	
+	
+	
+	
 }
+
+extension DataTable {
+	
+	enum DataTableError: Error {
+		case columnNameAlreadyExists(columnName: String)
+		case numberOfElementsInRowExccedsColumnLength(tableColumns: Int, rowColumns: Int)
+	}
+	
+}
+
+extension DataTable {
+	
+	class DataRow {
+		
+		private var elements = [Any?]()
+		private weak var table:DataTable?
+		
+		var count:Int {
+			return elements.count
+		}
+		
+		init(columns: Int, table:DataTable) {
+			
+			elements = Array(repeating: nil, count: columns)
+			
+			self.table = table
+			
+		}
+		
+		
+		
+		subscript(index: Int) -> Any? {
+			get {
+				return elements[index]
+			}
+			set(newValue) {
+				elements[index] = newValue
+			}
+		}
+		
+		subscript(key: String) -> Any? {
+			get {
+				return elements[table!.columns[key]!]
+			}
+			set (newValue) {
+				elements[table!.columns[key]!] = newValue
+			}
+		}
+		
+		
+		
+	}
+}
+
+

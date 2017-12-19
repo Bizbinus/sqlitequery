@@ -39,15 +39,19 @@ enum SQLiteConnectorError: Error
 {
 	case databaseCouldNotBeOpenedOrCreated(reason: String)
 	case databaseAlreadyOpen
+	case statementCouldNotBeCompiled(reason: String)
+	case parameterCouldNotBeBound(reason: String)
 	
 	
 }
 
 class SQLiteConnector {
 	
-	private var db:OpaquePointer?
-	private var dbFileUrl:URL?
+	private var db: OpaquePointer?
+	private var statement: OpaquePointer?
+	private var dbFileUrl: URL?
 	private var opened = false
+	private var statementParameters = [String: Any]()
 	
 	init(databaseName: String) {
 		
@@ -59,6 +63,7 @@ class SQLiteConnector {
 		
 	}
 	
+
 	func isOpen() -> Bool {
 		return opened
 	}
@@ -88,6 +93,105 @@ class SQLiteConnector {
 		
 	}
 	
+	/*
+	func queryScalar(_ queryString: String) throws -> Any {
+		
+	
+		try prepare(queryString)
+		try prepareVariables()
+		
+		//let result = sqlite3_step(statement)
+		
+	
+		
+		
+	}
+*/
+	
+	private func prepareVariables() throws {
+		
+		//for each statementParam, apply the variable
+		for (key, value) in statementParameters {
+			
+			
+			let pindex = sqlite3_bind_parameter_index(statement, String(format: "$%@", key))
+
+			if pindex == 0 {
+				let reason = String(cString: sqlite3_errmsg(db))
+				throw SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)
+			}
+
+			//for now only supporting int, text, and double
+			//let valueType = type(of: value)
+
+			if value is Int || value is Int32 {
+				if sqlite3_bind_int(statement, pindex, value as! Int32) != SQLITE_OK {
+					let reason = String(cString: sqlite3_errmsg(db))
+					throw SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)
+				}
+			}
+			else if value is Int64 {
+				if sqlite3_bind_int64(statement, pindex, value as! Int64) != SQLITE_OK {
+					let reason = String(cString: sqlite3_errmsg(db))
+					throw SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)
+				}
+			}
+			else if value is String {
+				if sqlite3_bind_text(statement, pindex, value as! String, -1, nil) != SQLITE_OK {
+					let reason = String(cString: sqlite3_errmsg(db))
+					throw SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)
+				}
+			}
+			else if value is Double {
+				if sqlite3_bind_double(statement, pindex, value as! Double) != SQLITE_OK {
+					let reason = String(cString: sqlite3_errmsg(db))
+					throw SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)
+				}
+			}
+		}
+	}
+	
+	func addParameter(name: String, value: Any)  {
+		
+		statementParameters[name] = value
+		
+		
+		
+	}
+	
+	func clearParameters() {
+		
+		if statement != nil {
+			sqlite3_clear_bindings(statement)
+			sqlite3_reset(statement)
+		}
+		statementParameters.removeAll(keepingCapacity: true)
+		
+	}
+
+	func clean() {
+		
+		clearParameters()
+		if statement != nil {
+			sqlite3_finalize(statement)
+			
+		}
+		
+		statement = nil
+	}
+	
+	
+	private func prepare(_ statementString: String) throws {
+		
+		clean()
+		
+		if sqlite3_prepare(db, statementString, -1, &statement, nil) != SQLITE_OK {
+			let reason = String(cString: sqlite3_errmsg(db))
+			throw SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)
+		}
+
+		
+	}
 	
 	
 	
