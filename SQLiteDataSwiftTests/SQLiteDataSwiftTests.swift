@@ -42,14 +42,36 @@ class SQLiteDataSwiftTests: XCTestCase {
 	
     override func setUp() {
         super.setUp()
+			
+			
+			
+			
+			
+			//this will create or open the file testdata
 			database = SQLiteConnector(databaseName: "testdata")
 			
+			do {
+				try FileManager.default.removeItem(at: URL(string: database.fileUrl!)!)
+			} catch let error as NSError {
+					print(error)
+			}
 			
 			
 	}
     
     override func tearDown() {
         super.tearDown()
+			
+
+			
+			//delete the database to ensure our tests run the same everytime
+			//if the database was never opened on a test, this will fail
+			do {
+				try FileManager.default.removeItem(at: URL(string: database.fileUrl!)!)
+			} catch {
+				
+			}
+			
     }
 	
 	
@@ -103,6 +125,114 @@ class SQLiteDataSwiftTests: XCTestCase {
 			database.close()
 		
 		XCTAssertTrue(!database.isOpen())
+		
+		
+	}
+	
+	func testDB_executingQueryOnClosedDatabaseThrowsError() {
+		
+		XCTAssertThrowsError(try database.execute("select count(*) from account"))
+		XCTAssertThrowsError(try database.executeScalar("select count(*) from account"))
+		
+		
+	}
+	
+	func testDB_createTableInsertWithBoundVarsSelectWithBoundVars() {
+		
+		try! database.open()
+		
+		
+		try! database.execute("create table account(account_id integer primary key, name text, description text)")
+		
+		database.setParameter(name: "accountName", value: "john")
+		database.setParameter(name: "accountDesc", value: "marketing and sales")
+		
+
+		try! database.execute("insert into account(name, description) values(@accountName, @accountDesc)")
+		
+		
+		let accountID1 = database.lastRowId()
+		
+		database.setParameter(name: "accountName", value: "lisa")
+		database.setParameter(name: "accountDesc", value: "obtuse deployment planning")
+		
+		try! database.execute()
+		
+		let accountID2 = database.lastRowId()
+		
+		database.clearParameters()
+		
+		database.setParameter(name: "accountID", value: accountID1)
+		
+		let name1 = try! database.executeScalar("select name from account where account_id=@accountID") as! String
+		
+		database.setParameter(name: "accountID", value: accountID2)
+		
+		let name2 = try! database.executeScalar() as! String
+		
+		
+		let description2 = try! database.executeScalar("select description from account where account_id=@accountID") as! String
+		
+		database.setParameter(name: "accountID", value: accountID1)
+		
+		let description1 = try! database.executeScalar() as! String
+		
+		XCTAssertTrue(name1 == "john")
+		XCTAssertTrue(description1 == "marketing and sales")
+		
+
+		XCTAssertTrue(name2 == "lisa")
+		XCTAssertTrue(description2 == "obtuse deployment planning")
+		
+		database.clear()
+		
+		//cleanup
+		try! database.execute("drop table account")
+	
+		database.close()
+		
+		
+	}
+	
+	func testDB_canCreateTableWithExecuteInsertDataWithExecuteValidateWithExecuteScalarDeleteWithExecute() {
+		
+		try! database.open()
+		
+		try! database.execute("create table account(account_id integer primary key, name text, description text)")
+		
+		try! database.execute("insert into account(name, description) values('john', 'marketing and sales')")
+		
+		let accountID1 = database.lastRowId()
+		
+		XCTAssertTrue(accountID1 == 1)
+		
+		try! database.execute("insert into account(name, description) values('lisa', 'obtuse deployment planning')")
+		
+		let accountID2 = database.lastRowId()
+		
+		XCTAssertTrue(accountID2 == 2)
+		
+		let name1 = try! database.executeScalar("select name from account where account_id=1") as! String
+		let description1 = try! database.executeScalar("select description from account where account_id=1") as! String
+		
+		XCTAssertTrue(name1 == "john")
+		XCTAssertTrue(description1 == "marketing and sales")
+		
+		let name2 = try! database.executeScalar("select name from account where account_id=2") as! String
+		let description2 = try! database.executeScalar("select description from account where account_id=2") as! String
+		
+		XCTAssertTrue(name2 == "lisa")
+		XCTAssertTrue(description2 == "obtuse deployment planning")
+		
+		try! database.execute("delete from account")
+		
+		XCTAssertTrue(try! database.executeScalar("select count(*) from account") as! Int == 0)
+		
+		database.clear()
+		
+		try! database.execute("drop table account")
+		
+		database.close()
 		
 		
 	}
