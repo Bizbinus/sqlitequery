@@ -84,6 +84,8 @@ class DataTableTests: XCTestCase {
 		
 	}
 	
+	
+	
 	func testTable_addingRowsShouldBeAccessibleFromTableByKeyOrIndex() {
 		
 		
@@ -124,6 +126,7 @@ class DataTableTests: XCTestCase {
 		
 		
 	}
+	
 	
 
     

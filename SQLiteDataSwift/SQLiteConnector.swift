@@ -196,6 +196,92 @@ class SQLiteConnector {
 		
 	}
 	
+	
+	func executeDataTable(_ queryString: String) throws -> DataTable {
+		
+		if !isOpen() {
+			throw SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase
+		}
+		
+		if queryString == "" {
+			throw SQLiteConnectorError.attemptingToExecuteEmptyQuery
+		}
+		
+		let table = DataTable()
+		
+		try prepare(queryString)
+		
+		try prepareVariables()
+		
+		let totalColumns = sqlite3_column_count(statement)
+		
+		for index in 0...(totalColumns-1) {
+			
+			let name = String(cString: sqlite3_column_name(statement, index))
+			
+			try table.appendColumn(name)
+			
+		}
+		
+		//add the rows
+		
+		while(sqlite3_step(statement) == SQLITE_ROW) {
+			
+			let r = table.newRow()
+			
+			for index in 0...(totalColumns-1) {
+				r[Int(index)] = columnValue(Int(index))
+				
+			}
+			
+			table.appendRow(r)
+			
+		}
+		
+		return table
+		
+	}
+
+	
+	func setParameter(name: String, value: Any)  {
+		
+		statementParameters[name] = value
+		
+		
+	}
+	
+	func resetStatement() {
+		if statement != nil {
+			sqlite3_reset(statement)
+		}
+	}
+	
+	func clearParameters() {
+		
+		clearStatementParameters()
+		
+		statementParameters = [String: Any]()
+		
+	}
+	
+	
+	func finalize() {
+		
+		if statement != nil {
+			sqlite3_finalize(statement)
+			
+		}
+		
+		statement = nil
+		prevRawQuery = ""
+	}
+	
+	func clear() {
+		
+		clearParameters()
+		finalize()
+	}
+	
 	private func columnValue(_ columnIndex: Int) -> Any? {
 		
 		let type = sqlite3_column_type(statement, Int32(columnIndex))
@@ -250,7 +336,7 @@ class SQLiteConnector {
 					let reason = String(cString: sqlite3_errmsg(db))
 					throw SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)
 				}
-			} else if value is Double {
+			} else if value is Double || value is Float {
 				if sqlite3_bind_double(statement, pindex, value as! Double) != SQLITE_OK {
 					let reason = String(cString: sqlite3_errmsg(db))
 					throw SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)
@@ -260,18 +346,7 @@ class SQLiteConnector {
 		}
 	}
 	
-	func setParameter(name: String, value: Any)  {
-		
-		statementParameters[name] = value
 	
-		
-	}
-	
-	func resetStatement() {
-		if statement != nil {
-			sqlite3_reset(statement)
-		}
-	}
 	
 	private func clearStatementParameters() {
 		resetStatement()
@@ -280,31 +355,7 @@ class SQLiteConnector {
 		}
 	}
 	
-	func clearParameters() {
-		
-		clearStatementParameters()
-
-		statementParameters = [String: Any]()
-
-	}
-
-
-	func finalize() {
-		
-		if statement != nil {
-			sqlite3_finalize(statement)
-			
-		}
-		
-		statement = nil
-		prevRawQuery = ""
-	}
-
-	func clear() {
-		
-		clearParameters()
-		finalize()
-	}
+	
 	
 	
 	private func prepare(_ statementString: String) throws {

@@ -236,6 +236,51 @@ class SQLiteDataSwiftTests: XCTestCase {
 		
 		
 	}
+	
+	func testDB_executeDataTableShouldReturnAllColumnsAndDataForResult() {
+		
+		try! database.open()
+		
+		try! database.execute("create table account(account_id integer primary key, name text, description text, level integer, score real)")
+		
+		
+		database.setParameter(name: "name", value: "John Wick")
+		database.setParameter(name: "description", value: "Marketing & Sales")
+		database.setParameter(name: "level", value: 10)
+		database.setParameter(name: "score", value: 0.92)
+		
+		try! database.execute("insert into account(name, description, level, score) values(@name, @description, @level, @score)")
+		
+		database.setParameter(name: "name", value: "Lorenze Gage")
+		database.setParameter(name: "description", value: "Business Development")
+		database.setParameter(name: "level", value: 5)
+		database.setParameter(name: "score", value: 0.62)
+		
+		try! database.execute("insert into account(name, description, level, score) values(@name, @description, @level, @score)")
+		
+		database.clearParameters()
+		
+		let table = try! database.executeDataTable("select * from account")
+		
+		XCTAssertTrue(table.rows[0]["name"] as! String == "John Wick")
+		XCTAssertTrue(table.rows[0]["description"] as! String == "Marketing & Sales")
+		XCTAssertTrue(table.rows[0]["level"] as! Int == 10)
+		XCTAssertTrue(table.rows[0]["score"] as! Double == 0.92)
+		
+		XCTAssertTrue(table.rows[1]["name"] as! String == "Lorenze Gage")
+		XCTAssertTrue(table.rows[1]["description"] as! String == "Business Development")
+		XCTAssertTrue(table.rows[1]["level"] as! Int == 5)
+		XCTAssertTrue(table.rows[1]["score"] as! Double == 0.62)
+		
+		
+		database.clear()
+		
+		try! database.execute("drop table account")
+		
+		database.close()
+		
+		
+	}
     
     func testPerformanceExample() {
 			

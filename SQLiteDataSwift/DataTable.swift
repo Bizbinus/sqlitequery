@@ -44,18 +44,18 @@ class DataTable {
 	var rows:[DataRow] = [DataRow]()
 	
 	init() {
-		
-		
-		
+
 	}
 	
 	func appendColumn(_ columnName: String) throws {
 		
+
 		if columns[columnName] != nil {
 			throw DataTableError.columnNameAlreadyExists(columnName: columnName)
 		}
 		
 		columns[columnName] = columns.count
+	
 		
 	}
 	
@@ -70,7 +70,7 @@ class DataTable {
 		rows.append(row)
 	}
 	
-	
+
 	
 	
 }
