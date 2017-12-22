@@ -34,7 +34,7 @@
 import Foundation
 import SQLite3
 
-
+/// A list of errors that a SQLiteConnector throws
 enum SQLiteConnectorError: Error
 {
 	case databaseCouldNotBeOpenedOrCreated(reason: String)
@@ -48,6 +48,7 @@ enum SQLiteConnectorError: Error
 	
 }
 
+/// A wrapper class for the sqlite3 api. This class encapsulates and manages a single compiled statement.
 class SQLiteConnector {
 	
 	private var db: OpaquePointer?
@@ -65,6 +66,13 @@ class SQLiteConnector {
 		}
 	}
 	
+	/**
+		Initialize a SQLiteConnector with an existing database or the name of the database to create
+	
+	- Parameter databaseName: Name of the database to open or create
+
+	*/
+	
 	init(databaseName: String) {
 		
 		let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -74,11 +82,16 @@ class SQLiteConnector {
 		
 	}
 	
-
+/**
+	Determines if the SQLite database has been opened or not
+*/
 	func isOpen() -> Bool {
 		return opened
 	}
 	
+	/**
+		Closes the SQLite database if it has been opened. Calling close on a closed database doesn't do anything.
+	*/
 	func close() {
 		
 		if (isOpen()) {
@@ -88,7 +101,12 @@ class SQLiteConnector {
 		
 	}
 	
-	//if database cannot be created or opened, throws an error
+	/**
+		Opens the named database or creates it if it doesn't exist.
+	
+	- Throws: `SQLiteConnectorError.databaseAlreadyOpen` if the database is already opened. `SQLiteConnectorError.databaseCouldNotBeOpenedOrCreated(reason: reason)` if the database could not be created or opened.
+	
+	*/
 	func open() throws {
 		
 		if isOpen() {
@@ -104,23 +122,55 @@ class SQLiteConnector {
 		
 	}
 	
+	/**
+		Retreives the last sqlite3 rowid that is auto generated( unless WITHOUT_ROWID was used ) for the most recent successful INSERT into a rowid table.
+	
+	- Returns: the most recent rowid recorded. This is 0 if no INSERT was done previously.
+	*/
 	func lastRowId() -> Int {
 		return Int(sqlite3_last_insert_rowid(db))
 	}
 	
+	/**
+		Gets the total number of rows inserted, updated, or deleted from the last modifying query.
+	
+	- Returns: total rows changed.
+	*/
 	func totalChanges() -> Int {
-		let changes = Int(sqlite3_total_changes(statement))
+		let changes = Int(sqlite3_changes(statement))
 		return changes
 	}
 	
-	//executes the last compiled query
+	// MARK: - SQL Interface
+	
+	/**
+		Executes the last query that was compiled without having to provide the same query string.  Use this method on subsequent query executions where only the parameters change.
+	
+	- Throws: `SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase` if database is not open.
+	`SQLiteConnectorError.attemptingToExecuteEmptyQuery` if no query string was provided.
+	'SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)` if statement couldn't be compiled.
+	`SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)` if any variable couldn't be bound to the compiled statement.
+	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
+	
+	*/
 	func execute() throws {
 		
 		try execute(prevRawQuery)
 		
 	}
 	
-	//for executing inserts,deletes,updates
+	/**
+	Compiles, binds any variables, and executes queryString
+	
+	- Parameter queryString: the SQL statement to compile and execute
+	
+	- Throws: `SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase` if database is not open.
+	`SQLiteConnectorError.attemptingToExecuteEmptyQuery` if no query string was provided.
+	`SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)` if statement couldn't be compiled.
+	`SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)` if any variable couldn't be bound to the compiled statement.
+	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
+	
+	*/
 	func execute(_ queryString: String) throws {
 		
 		if !isOpen() {
@@ -142,18 +192,40 @@ class SQLiteConnector {
 		if result != SQLITE_DONE && result != SQLITE_ROW {
 			let reason = String(cString: sqlite3_errmsg(db))
 			throw SQLiteConnectorError.executionError(reason: reason)
-			
-			
 		}
-	
 		
 	}
 
+	/**
+	Executes the last query that was compiled without having to provide the same query string. Use this method on subsequent query executions where only the parameters change.
+	
+	- Throws: `SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase` if database is not open.
+	`SQLiteConnectorError.attemptingToExecuteEmptyQuery` if no query string was provided.
+	`SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)` if statement couldn't be compiled.
+	`SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)` if any variable couldn't be bound to the compiled statement.
+	`SQLiteConnectorError.resultSetNotScalar` if the query returns more than 1 column
+	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
+	
+	- Returns: A value of type Any? which can be nil, Int, String, or Double.
+	*/
 	func executeScalar() throws -> Any? {
 		return try executeScalar(prevRawQuery)
 	}
 	
-	//for a query that returns a single value
+	/**
+	Compiles, binds any variables, and executes queryString with a single result. Returns error if query has more than 1 column in the result set.
+	
+	- Parameter queryString: the SQL statement to compile and execute.
+	
+	- Throws: `SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase` if database is not open.
+	`SQLiteConnectorError.attemptingToExecuteEmptyQuery` if no query string was provided.
+	`SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)` if statement couldn't be compiled.
+	`SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)` if any variable couldn't be bound to the compiled statement.
+	`SQLiteConnectorError.resultSetNotScalar` if the query returns more than 1 column
+	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
+	
+	- Returns: A value of type Any? which can be nil, Int, String, or Double.
+	*/
 	func executeScalar(_ queryString: String) throws -> Any? {
 		
 		if !isOpen() {
@@ -196,7 +268,37 @@ class SQLiteConnector {
 		
 	}
 	
+	/**
+	Executes the last query that was compiled without having to provide the same query string. Use this method on subsequent query executions where only the parameters change.
 	
+	- Throws: `SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase` if database is not open.
+	`SQLiteConnectorError.attemptingToExecuteEmptyQuery` if no query string was provided.
+	`SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)` if statement couldn't be compiled.
+	`SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)` if any variable couldn't be bound to the compiled statement.
+	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
+	`DataTableError.columnNameAlreadyExists(columnName: columnName)` if a column is added to the DataTable more than once.
+	
+	- Returns: A DataTable with rows from the resulting query. Access values using DataTable.rows[rowIndex][columnName]. Values are of type Any? and can be nil, Int, Double, String
+	*/
+	func executeDataTable() throws -> DataTable {
+		
+		return try executeDataTable(prevRawQuery)
+	}
+	
+	/**
+	Compiles, binds any variables, and executes queryString and puts the results in a DataTable.
+	
+	- Parameter queryString: the SELECT SQL statement to compile and execute.
+	
+	- Throws: `SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase` if database is not open.
+	`SQLiteConnectorError.attemptingToExecuteEmptyQuery` if no query string was provided.
+	`SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)` if statement couldn't be compiled.
+	`SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)` if any variable couldn't be bound to the compiled statement.
+	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
+	`DataTableError.columnNameAlreadyExists(columnName: columnName)` if a column is added to the DataTable more than once.
+	
+	- Returns: A DataTable with rows from the resulting query. Access values using DataTable.rows[rowIndex][columnName]. Values are of type Any? and can be nil, Int, Double, String
+	*/
 	func executeDataTable(_ queryString: String) throws -> DataTable {
 		
 		if !isOpen() {
@@ -242,7 +344,14 @@ class SQLiteConnector {
 		
 	}
 
+	// MARK: - Statement Parameters
+	/**
+	Set a parameter and value to be bound to the statement before execution. Setting parameter name again overwrites existing value. Clear a parameter name by setting it to nil.
 	
+	- Parameter name: name of parameter ( don't include sqlite variable prefix )
+	- Parameter value: any value of type Int, Double, or String. If value is nil, removes the parameter name.
+	
+	*/
 	func setParameter(name: String, value: Any)  {
 		
 		statementParameters[name] = value
@@ -250,12 +359,10 @@ class SQLiteConnector {
 		
 	}
 	
-	func resetStatement() {
-		if statement != nil {
-			sqlite3_reset(statement)
-		}
-	}
+	/**
+	Clears any bound parameters from the statement and clears all parameters that have been stored for execution.
 	
+	*/
 	func clearParameters() {
 		
 		clearStatementParameters()
@@ -264,7 +371,21 @@ class SQLiteConnector {
 		
 	}
 	
+	// MARK: - Reset and Cleanup
+	/**
+	Resets a compiled statement so it can be executed again
 	
+	*/
+	func resetStatement() {
+		if statement != nil {
+			sqlite3_reset(statement)
+		}
+	}
+	
+	/**
+	Cleans the currently compiled statement by calling `sqlite3_finalize`. Does not clear the stored parameters.
+	
+	*/
 	func finalize() {
 		
 		if statement != nil {
@@ -276,12 +397,25 @@ class SQLiteConnector {
 		prevRawQuery = ""
 	}
 	
+	/**
+	Clears all parameters and finalizes the statement
+	
+	*/
 	func clear() {
 		
 		clearParameters()
 		finalize()
 	}
 	
+	// MARK: - Private
+	/**
+	Gets the value of the cell at column `columnIndex` on a compiled statement
+	
+	- Parameter columnIndex: The index of the column to retreive the value from at this current `step` of the compiled statement.
+
+	- Returns: Value that is of type nil, Int, Double, or String
+	
+	*/
 	private func columnValue(_ columnIndex: Int) -> Any? {
 		
 		let type = sqlite3_column_type(statement, Int32(columnIndex))
@@ -297,8 +431,12 @@ class SQLiteConnector {
 		}
 		
 	}
-
+	/**
+	Binds any variables stored in statementVariables to the variable names in the SQL query statement. Any existing statement parameters are unbound first.
 	
+	- Throws: `SQLiteConnectorError.parameterCouldNotBeBound(reason: reason)` if error occured binding variable to statement. Reason gives error message from database pointer.
+
+	*/
 	private func prepareVariables() throws {
 		
 		clearStatementParameters()
@@ -346,8 +484,10 @@ class SQLiteConnector {
 		}
 	}
 	
+	/**
+	Resets the currently compiled statement and clears any bound parameters.
 	
-	
+	*/
 	private func clearStatementParameters() {
 		resetStatement()
 		if statement != nil {
@@ -355,9 +495,12 @@ class SQLiteConnector {
 		}
 	}
 	
+	/**
+	Compiles or resets a SQL statement and makes it ready to use with sqlite_step. If the previous query string is equal to this query string, then the statement isn't compiled, it is instead rest for use.
 	
+	- Throws: `SQLiteConnectorError.statementCouldNotBeCompiled(reason: reason)` if error occured compiling SQL statement. Reason gives error message from database pointer.
 	
-	
+	*/
 	private func prepare(_ statementString: String) throws {
 		
 		if prevRawQuery == statementString {

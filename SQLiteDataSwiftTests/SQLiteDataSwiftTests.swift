@@ -50,6 +50,8 @@ class SQLiteDataSwiftTests: XCTestCase {
 			//this will create or open the file testdata
 			database = SQLiteConnector(databaseName: "testdata")
 			
+		
+			
 			do {
 				try FileManager.default.removeItem(at: URL(string: database.fileUrl!)!)
 			} catch let error as NSError {
@@ -92,6 +94,8 @@ class SQLiteDataSwiftTests: XCTestCase {
 		}
 		
 	}
+	
+	
 	
 	func testDB_whenOpenCantReopen() {
 		
