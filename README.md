@@ -8,7 +8,12 @@ SQLiteDataQuery provides an easy-to-use DataTable class for query results.
 - No need to manage OpaquePointer statements, SQLiteDataQuery manages query statements for you.
 - Extend SQLiteDataQuery to create classes with interfaces specific to the data they manage.
 - Well-documented methods.
-- DataTable class for easily looping through results from a SELECT query.
+- DataTable class for easily cycling through results from a SELECT query.
+
+## In The Works
+- Support for Blobs.
+- Mapping of query results to a custom Class so that results can be an Array of custom objects.
+- Better/Cleaner test cases to make development easier.
 
 ## Usage
 ```swift
@@ -99,6 +104,9 @@ for row in table.rows {
 
 
 ```
+
+
+
 ## Contact
 - [Gail Sparks](mailto:gailsparks@gmail.com)
 
