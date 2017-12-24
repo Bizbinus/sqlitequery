@@ -18,8 +18,8 @@ SQLiteDataQuery provides an easy-to-use DataTable class for query results.
 ## Usage
 ```swift
 
-//setup a database connection by passing name of database file to open or create to constructor
-//database file is created in the user document directory
+//setup a database connection by passing name of database file to open or create
+//database file is created in the user's document directory
 var database = SQLiteConnector(databaseName: "database_file_name")
 
 //to use the database connection, open it
@@ -27,7 +27,7 @@ try! database.open()
 
 //run your queries
 
-//get the last generated row id
+//get the last generated row id from an INSERT statement
 let accountID = database.lastRowId()
 
 //get the total number of rows changed ( on UPDATE or DELETE )
@@ -36,7 +36,7 @@ let totalChangedRows = database.totalChanges()
 //remove parameters and finalize the statement
 database.clear()
 
-//then close the connection
+//close the connection
 database.close()
 
 ```
@@ -65,7 +65,7 @@ database.setParameter(name: "accountDesc", value: "Graphic Designer")
 //use execute() to re-execute the last statement( this method doesn't re-compile the statement )
 try! database.execute()
 
-//clear the parameters
+//clear the parameters ( this needs to be done before executing a statement with different parameters )
 database.clearParameters()
 
 
@@ -77,7 +77,7 @@ database.clearParameters()
 database.setParameter(name: "accountName", value: "john")
 let johnAccountID = try! database.executeScalar("select account_id from account where name=@accountName") as! Int
 
-//use executeScalar() so the query doesn't get re-compiled
+//use executeScalar() so the statement isn't re-compiled
 database.setParameter(name: "accountName", value: "lisa")
 let lisaAccountID = try! database.executeScalar() as! Int
 
@@ -100,6 +100,7 @@ let firstName = table.rows[0]["name"] as! String
 //loop through all the rows
 for row in table.rows {
   print(row["name"] as! String)
+  print(row["description"] as! String)
 }
 
 
