@@ -1,4 +1,4 @@
-# SQLiteDataQuery.swift
+# SQLiteDataSwift
 Simple Sqlite3 wrapper for Swift 4, because sometimes you just want to write queries and get the results without any hassle.
 
 SQLiteDataQuery provides an easy-to-use DataTable class for query results.
