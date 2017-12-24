@@ -6,7 +6,7 @@ SQLiteDataQuery provides an easy-to-use DataTable class for query results.
 ## Features
 - Easy to use and understand Swift interface.
 - No need to manage OpaquePointer statements, SQLiteDataQuery manages query statements for you.
-- Extend SQLiteDataQuery to create classes with interfaces specific to the data they manage.
+- Extend SQLiteConnector to create classes with interfaces specific to the data they manage.
 - Well-documented methods.
 - DataTable class for easily cycling through results from a SELECT query.
 
