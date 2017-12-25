@@ -95,6 +95,29 @@ class SQLiteDataSwiftTests: XCTestCase {
 		
 	}
 	
+	func testDB_tableDoesExist() {
+		
+		try! database.open()
+		
+		try! database.execute("create table cart(item_name text, item_description text, price real)")
+		
+		XCTAssertTrue(database.tableExists("cart"))
+		
+		try! database.execute("drop table cart")
+		
+		database.close()
+		
+	}
+	
+	func testDB_tableShouldntExist() {
+		
+		try! database.open()
+		
+		XCTAssertTrue(!database.tableExists("cart"))
+		
+		database.close()
+		
+	}
 	
 	
 	func testDB_whenOpenCantReopen() {
@@ -275,6 +298,8 @@ class SQLiteDataSwiftTests: XCTestCase {
 		XCTAssertTrue(table.rows[1]["description"] as! String == "Business Development")
 		XCTAssertTrue(table.rows[1]["level"] as! Int == 5)
 		XCTAssertTrue(table.rows[1]["score"] as! Double == 0.62)
+		
+		
 		
 		
 		database.clear()

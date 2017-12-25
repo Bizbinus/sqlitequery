@@ -35,7 +35,7 @@
 import Foundation
 
 /// DataTable holds data pulled from a sqlite database and makes it easy to loop through
-class DataTable {
+public class DataTable {
 	
 
 	/**
@@ -52,7 +52,7 @@ class DataTable {
 	*/
 	var rows:[DataRow] = [DataRow]()
 	
-	init() {
+	public init() {
 
 	}
 	
@@ -106,7 +106,7 @@ class DataTable {
 /// List of errors that DataTable can throw
 extension DataTable {
 	
-	enum DataTableError: Error {
+	public enum DataTableError: Error {
 		case columnNameAlreadyExists(columnName: String)
 		case numberOfElementsInRowExccedsColumnLength(tableColumns: Int, rowColumns: Int)
 	}
@@ -117,7 +117,7 @@ extension DataTable {
 extension DataTable {
 	
 	/// DataRow is a class used by DataTable to manage a list of data pulled from a sqlite query
-	class DataRow {
+	public class DataRow {
 		
 		/**
 			Holdes an element for each column in this DataTable's column list

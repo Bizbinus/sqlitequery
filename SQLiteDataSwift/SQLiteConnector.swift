@@ -35,7 +35,7 @@ import Foundation
 import SQLite3
 
 /// A list of errors that a SQLiteConnector throws
-enum SQLiteConnectorError: Error
+public enum SQLiteConnectorError: Error
 {
 	case databaseCouldNotBeOpenedOrCreated(reason: String)
 	case databaseAlreadyOpen
@@ -49,7 +49,7 @@ enum SQLiteConnectorError: Error
 }
 
 /// A wrapper class for the sqlite3 api. This class encapsulates and manages a single compiled statement.
-class SQLiteConnector {
+public class SQLiteConnector {
 	
 	private var db: OpaquePointer?
 	private var statement: OpaquePointer?
@@ -58,7 +58,7 @@ class SQLiteConnector {
 	private var statementParameters = [String: Any]()
 	private var prevRawQuery = ""
 	
-	var fileUrl: String? {
+	public var fileUrl: String? {
 		if dbFileUrl != nil {
 			return dbFileUrl!.absoluteString
 		} else {
@@ -73,7 +73,7 @@ class SQLiteConnector {
 
 	*/
 	
-	init(databaseName: String) {
+	public init(databaseName: String) {
 		
 		let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 		
@@ -134,11 +134,30 @@ class SQLiteConnector {
 	/**
 		Gets the total number of rows inserted, updated, or deleted from the last modifying query.
 	
-	- Returns: total rows changed.
+	- Returns: total rows changed from most recent INSERT, UPDATE, or DELETE
 	*/
 	func totalChanges() -> Int {
 		let changes = Int(sqlite3_changes(statement))
 		return changes
+	}
+	
+	/**
+		Determines if a table exists or not
+
+- Returns: true if table exists, false otherwise
+
+	*/
+	func tableExists(_ tableName: String) -> Bool {
+	
+		setParameter(name: "tableName", value: tableName)
+	
+		let count = try! executeScalar("select count(*) from sqlite_master where type='table' and name=@tableName") as! Int
+	
+		clearParameters()
+	
+		return count > 0
+	
+	
 	}
 	
 	// MARK: - SQL Interface
