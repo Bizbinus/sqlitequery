@@ -144,6 +144,8 @@ public class SQLiteConnector {
 	/**
 		Determines if a table exists or not
 
+	- Parameter tableName: name of table to check if exists in this database
+	
 - Returns: true if table exists, false otherwise
 
 	*/
