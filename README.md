@@ -1,19 +1,19 @@
-# SQLiteDataSwift
+# SQLiteQuery
 Simple Sqlite3 wrapper for Swift 4, because sometimes you just want to write queries and get the results without any hassle.
 
-SQLiteDataQuery provides an easy-to-use DataTable class for query results.
+SQLiteQuery provides an easy-to-use DataTable class for query results.
 
 ## Features
 - Easy to use and understand Swift interface.
-- No need to manage OpaquePointer statements, SQLiteDataQuery manages query statements for you.
+- No need to manage OpaquePointer statements, SQLiteQuery manages query statements for you.
 - Extend SQLiteConnector to create classes with interfaces specific to the data they manage.
 - Well-documented methods.
-- DataTable class for easily cycling through results from a SELECT query.
+- DataTable class for easy access to results from a SELECT query.
 
 ## In The Works
 - Support for Blobs.
 - Mapping of query results to a custom Class so that results can be an Array of custom objects.
-- Better/Cleaner test cases to make development easier.
+- Better/Cleaner test cases.
 
 ## Usage
 ```swift
