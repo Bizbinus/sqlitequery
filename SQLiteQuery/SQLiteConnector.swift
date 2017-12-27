@@ -85,14 +85,14 @@ public class SQLiteConnector {
 /**
 	Determines if the SQLite database has been opened or not
 */
-	func isOpen() -> Bool {
+	public func isOpen() -> Bool {
 		return opened
 	}
 	
 	/**
 		Closes the SQLite database if it has been opened. Calling close on a closed database doesn't do anything.
 	*/
-	func close() {
+	public func close() {
 		
 		if (isOpen()) {
 			sqlite3_close(db)
@@ -107,7 +107,7 @@ public class SQLiteConnector {
 	- Throws: `SQLiteConnectorError.databaseAlreadyOpen` if the database is already opened. `SQLiteConnectorError.databaseCouldNotBeOpenedOrCreated(reason: reason)` if the database could not be created or opened.
 	
 	*/
-	func open() throws {
+	public func open() throws {
 		
 		if isOpen() {
 			throw SQLiteConnectorError.databaseAlreadyOpen
@@ -127,7 +127,7 @@ public class SQLiteConnector {
 	
 	- Returns: the most recent rowid recorded. This is 0 if no INSERT was done previously.
 	*/
-	func lastRowId() -> Int {
+	public func lastRowId() -> Int {
 		return Int(sqlite3_last_insert_rowid(db))
 	}
 	
@@ -136,7 +136,7 @@ public class SQLiteConnector {
 	
 	- Returns: total rows changed from most recent INSERT, UPDATE, or DELETE
 	*/
-	func totalChanges() -> Int {
+	public func totalChanges() -> Int {
 		let changes = Int(sqlite3_changes(statement))
 		return changes
 	}
@@ -149,7 +149,7 @@ public class SQLiteConnector {
 - Returns: true if table exists, false otherwise
 
 	*/
-	func tableExists(_ tableName: String) -> Bool {
+	public func tableExists(_ tableName: String) -> Bool {
 	
 		setParameter(name: "tableName", value: tableName)
 	
@@ -174,7 +174,7 @@ public class SQLiteConnector {
 	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
 	
 	*/
-	func execute() throws {
+	public func execute() throws {
 		
 		try execute(prevRawQuery)
 		
@@ -192,7 +192,7 @@ public class SQLiteConnector {
 	`SQLiteConnectorError.executionError(reason: reason)` if there was a problem executing the query.
 	
 	*/
-	func execute(_ queryString: String) throws {
+	public func execute(_ queryString: String) throws {
 		
 		if !isOpen() {
 			throw SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase
@@ -229,7 +229,7 @@ public class SQLiteConnector {
 	
 	- Returns: A value of type Any? which can be nil, Int, String, or Double.
 	*/
-	func executeScalar() throws -> Any? {
+	public func executeScalar() throws -> Any? {
 		return try executeScalar(prevRawQuery)
 	}
 	
@@ -247,7 +247,7 @@ public class SQLiteConnector {
 	
 	- Returns: A value of type Any? which can be nil, Int, String, or Double.
 	*/
-	func executeScalar(_ queryString: String) throws -> Any? {
+	public func executeScalar(_ queryString: String) throws -> Any? {
 		
 		if !isOpen() {
 			throw SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase
@@ -301,7 +301,7 @@ public class SQLiteConnector {
 	
 	- Returns: A DataTable with rows from the resulting query. Access values using DataTable.rows[rowIndex][columnName]. Values are of type Any? and can be nil, Int, Double, String
 	*/
-	func executeDataTable() throws -> DataTable {
+	public func executeDataTable() throws -> DataTable {
 		
 		return try executeDataTable(prevRawQuery)
 	}
@@ -320,7 +320,7 @@ public class SQLiteConnector {
 	
 	- Returns: A DataTable with rows from the resulting query. Access values using DataTable.rows[rowIndex][columnName]. Values are of type Any? and can be nil, Int, Double, String
 	*/
-	func executeDataTable(_ queryString: String) throws -> DataTable {
+	public func executeDataTable(_ queryString: String) throws -> DataTable {
 		
 		if !isOpen() {
 			throw SQLiteConnectorError.attemptingToExecuteQueryOnClosedDatabase
@@ -373,7 +373,7 @@ public class SQLiteConnector {
 	- Parameter value: any value of type Int, Double, or String. If value is nil, removes the parameter name.
 	
 	*/
-	func setParameter(name: String, value: Any)  {
+	public func setParameter(name: String, value: Any)  {
 		
 		statementParameters[name] = value
 		
@@ -384,7 +384,7 @@ public class SQLiteConnector {
 	Clears any bound parameters from the statement and clears all parameters that have been stored for execution.
 	
 	*/
-	func clearParameters() {
+	public func clearParameters() {
 		
 		clearStatementParameters()
 		
@@ -397,7 +397,7 @@ public class SQLiteConnector {
 	Resets a compiled statement so it can be executed again
 	
 	*/
-	func resetStatement() {
+	public func resetStatement() {
 		if statement != nil {
 			sqlite3_reset(statement)
 		}
@@ -407,7 +407,7 @@ public class SQLiteConnector {
 	Cleans the currently compiled statement by calling `sqlite3_finalize`. Does not clear the stored parameters.
 	
 	*/
-	func finalize() {
+	public func finalize() {
 		
 		if statement != nil {
 			sqlite3_finalize(statement)
@@ -422,7 +422,7 @@ public class SQLiteConnector {
 	Clears all parameters and finalizes the statement
 	
 	*/
-	func clear() {
+	public func clear() {
 		
 		clearParameters()
 		finalize()

@@ -44,13 +44,13 @@ public class DataTable {
 	A DataRow uses this dictionary of columns to determing the element index being referenced.
 	
 	*/
-	var columns = [String:Int]()
+	public var columns = [String:Int]()
 	
 	/**
 	The rows of data. Each row has a value for each column name.
 	
 	*/
-	var rows:[DataRow] = [DataRow]()
+	public var rows:[DataRow] = [DataRow]()
 	
 	public init() {
 
@@ -64,7 +64,7 @@ public class DataTable {
 	- Throws: - `DataTableError.columnNameAlreadyExists(columnName: columnName)` if columnName already exists. Column names must be unique.
 	
 	*/
-	func appendColumn(_ columnName: String) throws {
+	public func appendColumn(_ columnName: String) throws {
 		
 
 		if columns[columnName] != nil {
@@ -82,7 +82,7 @@ public class DataTable {
 	- Returns: a new DataRow that can be appended to this DataTable. DataRow has a weak reference to this DataTable in order to access this DataTables columns.
 	
 	*/
-	func newRow() -> DataRow {
+	public func newRow() -> DataRow {
 
 		return DataRow(columns: columns.count, table: self)
 		
@@ -93,7 +93,7 @@ public class DataTable {
 	Appends a DataRow to this table.
 	
 	*/
-	func appendRow(_ row:DataRow) {
+	public func appendRow(_ row:DataRow) {
 		
 		rows.append(row)
 	}
@@ -132,7 +132,7 @@ extension DataTable {
 		/**
 			Counts the number of elements ( columns ) in this DataRow
 		*/
-		var count:Int {
+		public var count:Int {
 			return elements.count
 		}
 		
