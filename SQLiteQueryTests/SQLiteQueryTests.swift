@@ -1,6 +1,6 @@
 //
 //  SQLiteDataSwiftTests.swift
-//  SQLiteDataSwiftTests
+//  SQLiteQuery
 //
 //  Created by Gail Sparks on 12/17/17.
 //  Copyright © 2017 Bizbin LLC. All rights reserved.
@@ -33,9 +33,9 @@
 
 
 import XCTest
-@testable import SQLiteDataSwift
+@testable import SQLiteQuery
 
-class SQLiteDataSwiftTests: XCTestCase {
+class SQLiteQueryTests: XCTestCase {
 	
 	var database: SQLiteConnector!
 	
@@ -47,7 +47,7 @@ class SQLiteDataSwiftTests: XCTestCase {
 			
 			
 			
-			//this will create or open the file testdata
+			//this will create or open the file testdata in the User's document directory
 			database = SQLiteConnector(databaseName: "testdata")
 			
 		

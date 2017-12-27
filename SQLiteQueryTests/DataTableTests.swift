@@ -1,6 +1,6 @@
 //
 //  DataTableTests.swift
-//  SQLiteDataSwiftTests
+//  SQLiteQuery
 //
 //  Created by Gail Sparks on 12/17/17.
 //  Copyright © 2017 Bizbin LLC. All rights reserved.
@@ -33,7 +33,7 @@
 
 
 import XCTest
-@testable import SQLiteDataSwift
+@testable import SQLiteQuery
 
 class DataTableTests: XCTestCase {
     
