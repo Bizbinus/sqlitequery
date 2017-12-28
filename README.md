@@ -113,11 +113,12 @@ SQLiteQuery requires Swift 4.
 In your Podfile, include:
 ```ruby
 
-use_frameworks!
-
-    target 'YourAppTargetName' do
-        pod 'SQLiteQuery'
-    end
+target 'AppTargetName' do
+  use_frameworks!
+  
+	pod 'SQLiteQuery'
+  
+end
     
 ```
 
