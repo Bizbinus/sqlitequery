@@ -106,6 +106,21 @@ for row in table.rows {
 
 ```
 
+## Installation
+SQLiteQuery requires Swift 4.
+
+### CocoaPods
+In your Podfile, include:
+```ruby
+
+use_frameworks!
+
+    target 'YourAppTargetName' do
+        pod 'SQLiteQuery'
+    end
+    
+```
+
 
 
 ## Contact
