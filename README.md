@@ -33,6 +33,9 @@ let accountID = database.lastRowId()
 //get the total number of rows changed ( on UPDATE or DELETE )
 let totalChangedRows = database.totalChanges()
 
+//check if a table exists or not
+let accountTableExists = database.tableExists("account")
+
 //remove parameters and finalize the statement
 database.clear()
 
