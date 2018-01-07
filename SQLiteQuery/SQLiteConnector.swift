@@ -49,7 +49,7 @@ public enum SQLiteConnectorError: Error
 }
 
 /// A wrapper class for the sqlite3 api. This class encapsulates and manages a single compiled statement.
-public class SQLiteConnector {
+open class SQLiteConnector {
 	
 	private var db: OpaquePointer?
 	private var statement: OpaquePointer?
